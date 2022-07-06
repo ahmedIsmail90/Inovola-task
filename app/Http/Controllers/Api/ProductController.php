@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\Store;
 use Illuminate\Http\Request;
 use Validator;
+use Illuminate\Validation\Rule;
 
 class ProductController extends BaseController
 {
@@ -50,7 +51,9 @@ class ProductController extends BaseController
         $input = $request->all();
         $validator = Validator::make($input, [
             'price'    =>'numeric|required',
-            'sku'      =>'required|unique:products',
+            'sku'      =>Rule::unique('products')->where(function ($query) use ($store) {
+                    return $query->where('store_id', $store->id);
+                }), // sku is unique per store
             'translations.en.name' => 'string|required',
             'translations.en.description'=> 'string|required',
             'translations.ar.name' => 'string|required',
@@ -95,7 +98,10 @@ class ProductController extends BaseController
         $input = $request->all();
         $validator = Validator::make($input, [
             'price'    =>'numeric',
-            'sku'      =>'unique:products',
+
+            'sku'      =>Rule::unique('products')->where(function ($query) use ($product,$id) {
+                return $query->where('store_id', $product->store_id)->where('id','!=',$id);
+            }), // sku is unique per store
             'translations.en.name' => 'string',
             'translations.en.description'=> 'string',
             'translations.ar.name' => 'string',
@@ -112,7 +118,6 @@ class ProductController extends BaseController
         if(isset($input['translations'])){
             foreach ($input['translations'] as $key=>$value){
                 $translation = $product->getTranslationOrNew($key);
-                dd($translation);
                 $translation->name = $value['name'];
                 $translation->description = $value['description'];
 
