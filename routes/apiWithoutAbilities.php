@@ -1,10 +1,9 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\StoreController;
 use App\Http\Controllers\API\RegisterController;
-use \Illuminate\Auth\Middleware\Authorize;
+use App\Http\Controllers\Api\ProductController;
+
 
 
 /*
@@ -19,6 +18,8 @@ use \Illuminate\Auth\Middleware\Authorize;
 */
 
 Route::controller(RegisterController::class)->group(function () {
-    Route::post('user/register', 'register');
-    Route::post('user/login', 'login');
+    Route::post('register', 'register');
+    Route::post('login', 'login');
+    Route::GET('/store/{store}/products/', [ProductController::class, 'index']);
+    Route::GET('/user/types', [RegisterController::class, 'getTypes']);
 });
