@@ -2,12 +2,10 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
 use App\Models\Store;
 use Illuminate\Http\Request;
 use App\Http\Resources\StoreResource;
 use Validator;
-use App\Http\Traits\ApiHelpers;
 
 class StoreController extends BaseController
 {
@@ -52,10 +50,7 @@ class StoreController extends BaseController
             return $this->sendError('Validation Error.', $validator->errors(),404);
         }
 
-
-        $store = $user->orders()->create(['quantity'=>$input['quantity'] , '']);
-
-
+        $store = $user->stores()->create($input);
         return $this->sendResponse(new StoreResource($store), 'Store created successfully.');
     }
 
@@ -95,7 +90,7 @@ class StoreController extends BaseController
         $input = $request->all();
 
         $validator = Validator::make($input, [
-            'name' => 'unique:stores',
+            'name' => 'unique:stores,name,'.$store->id, //unique name ignoring itself
             'is_vat_included'=> 'nullable|boolean',
             'vat_percentage'=> 'required_if:is_vat_included,true',
             'shipping_cost'=> 'nullable|numeric',
