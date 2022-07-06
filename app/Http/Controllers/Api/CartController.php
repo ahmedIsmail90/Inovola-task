@@ -53,6 +53,7 @@ class CartController extends BaseController
 
                  ]);}
 
+
             //order attributes calculated from order item attributes
             $subtotalOrder = $totalOrder = $vatTotalOrder =$orderQuantity=0;
             foreach($input['items'] as $item){
@@ -60,6 +61,9 @@ class CartController extends BaseController
                  * @App/Http/Models/Product
                  */
                 $product = Product::where(['sku'=>$item['sku'] ])->first();
+                if(is_null($product)){
+                   return $this->sendError('product sku '.$item['sku'] .' not found');
+                }
                 //check that order item exist
                 $orderItem = OrderItem::where('order_id',$cart->id)->where('product_id',$product->id)->first();
                 if(is_null($orderItem)){ // if order item not found create it
@@ -70,6 +74,7 @@ class CartController extends BaseController
                 }
                 //if quantity =0 it means that user delete item from his cart
                 if($item['quantity']==0){
+
                     $orderItem->delete();
                     continue; //continue to next item
                 }
@@ -97,6 +102,11 @@ class CartController extends BaseController
 
 
             }
+       $cartItems = $cart->orderItems()->get()->toArray();
+        if(empty($cartItems)){
+            return $this->sendResponse([],'cart is empty');
+        }
+
 
             // add order attributes
             $cart->total= $totalOrder+$cart->shipping_cost;
