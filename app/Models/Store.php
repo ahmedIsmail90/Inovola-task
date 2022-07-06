@@ -24,17 +24,16 @@ class Store extends Model
 
     public function products()
     {
-        return $this->hasMany(Product::class,'store_id');
+        return $this->hasMany(Product::class, 'store_id');
     }
 
     public function orders()
     {
-        return $this->hasMany(Order::class,'store_id');
+        return $this->hasMany(Order::class, 'store_id');
     }
 
     public function orderItems()
     {
-        return $this->hasMany(OrderItem::class,'store_id');
+        return $this->hasMany(OrderItem::class, 'store_id');
     }
-
 }

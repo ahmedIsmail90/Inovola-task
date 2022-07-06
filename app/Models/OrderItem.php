@@ -23,7 +23,8 @@ class OrderItem extends Model
         return $this->hasOne(Store::class);
     }
 
-    public function product(){
+    public function product()
+    {
         return $this->hasOne(Product::class);
     }
 }

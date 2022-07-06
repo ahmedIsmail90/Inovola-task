@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Models\Store;
 use Illuminate\Http\Request;
 use App\Http\Resources\StoreResource;
+use Illuminate\Http\Response;
 use Validator;
 
 class StoreController extends BaseController
@@ -12,11 +13,10 @@ class StoreController extends BaseController
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function index()
     {
-
         $user = auth('sanctum')->user();
         $stores = $user->stores;
 
@@ -28,8 +28,8 @@ class StoreController extends BaseController
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @return Response
      */
     public function store(Request $request)
     {
@@ -46,8 +46,8 @@ class StoreController extends BaseController
 
         ]);
 
-        if($validator->fails()){
-            return $this->sendError('Validation Error.', $validator->errors(),404);
+        if ($validator->fails()) {
+            return $this->sendError('Validation Error.', $validator->errors(), 404);
         }
 
         $store = $user->stores()->create($input);
@@ -57,13 +57,13 @@ class StoreController extends BaseController
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Store  $store
-     * @return \Illuminate\Http\Response
+     * @param Store $store
+     * @return Response
      */
     public function show($id)
     {
         $user = auth('sanctum')->user();
-        $store = Store::where('id',$id)->where('merchant_id',$user->id)->first();
+        $store = Store::where('id', $id)->where('merchant_id', $user->id)->first();
         if (is_null($store)) {
             return $this->sendError('Store not found.');
         }
@@ -76,14 +76,14 @@ class StoreController extends BaseController
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Store  $store
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @param Store $store
+     * @return Response
      */
-    public function update(Request $request,$id)
+    public function update(Request $request, $id)
     {
         $user = auth('sanctum')->user();
-        $store = Store::where('id',$id)->where('merchant_id',$user->id)->first();
+        $store = Store::where('id', $id)->where('merchant_id', $user->id)->first();
         if (is_null($store)) {
             return $this->sendError('Store not found.');
         }
@@ -96,8 +96,8 @@ class StoreController extends BaseController
             'shipping_cost'=> 'nullable|numeric',
         ]);
 
-        if($validator->fails()){
-            return $this->sendError('Validation Error.', $validator->errors(),404);
+        if ($validator->fails()) {
+            return $this->sendError('Validation Error.', $validator->errors(), 404);
         }
 
         $store->name = $input['name']??$store->name;
@@ -112,8 +112,8 @@ class StoreController extends BaseController
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Store  $store
-     * @return \Illuminate\Http\Response
+     * @param Store $store
+     * @return Response
      */
     public function destroy(Store $store)
     {
