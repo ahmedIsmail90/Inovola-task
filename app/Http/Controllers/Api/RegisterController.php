@@ -7,6 +7,7 @@ use App\Http\Controllers\API\BaseController as BaseController;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Validation\Rule;
 use Validator;
 
 class RegisterController extends BaseController
@@ -18,9 +19,13 @@ class RegisterController extends BaseController
      */
     public function register(Request $request)
     {
+        $input = $request->all();
         $validator = Validator::make($request->all(), [
             'name' => 'required',
-            'email' => 'required|email|unique:users',
+            'email' => 'required',
+            'email' =>Rule::unique('users')->where(function ($query) use ($input) {
+                return $query->where('type', $input['type']);
+            }), // email is unique per user type
             'password' => 'required',
             'c_password' => 'required|same:password'
         ]);
@@ -28,6 +33,8 @@ class RegisterController extends BaseController
         if($validator->fails()){
             return $this->sendError('Validation Error.', $validator->errors());
         }
+
+
 
         $input = $request->all();
         $input['password'] = bcrypt($input['password']);
@@ -47,14 +54,16 @@ class RegisterController extends BaseController
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
             'password' => 'required',
+            'type'     => 'required' // need type because same email could be merchant and user
         ]);
 
         if($validator->fails()){
             return $this->sendError('Validation Error.', $validator->errors());
         }
 
-        if(Auth::attempt(['email' => $request->email, 'password' => $request->password])){
+        if(Auth::attempt(['email' => $request->email, 'password' => $request->password,'type'=>$request->type])){ // auth with three fields
             $user = Auth::user();
+
             $token=  $user->createToken('MyApp')->plainTextToken;
             if($user->type =='merchant' ){
                  $token = $user->createToken('Myapp', ['merchant'])->plainTextToken; //create token has ability merchant
